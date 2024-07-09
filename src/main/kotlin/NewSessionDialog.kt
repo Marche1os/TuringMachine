@@ -89,7 +89,7 @@ fun NewSessionDialog(
 
                         val maxTapeValue = tape.maxOf { it.toInt() }
 
-                        if (maxTapeValue > alphabet) {
+                        if (maxTapeValue > alphabet - 1) {
                             errorMessage = "В ленте содержатся значения, превышающие размер алфавита"
                             return@Button
                         }

@@ -33,7 +33,8 @@ fun HeaderCell(text: String) {
 @Composable
 fun Cell(
     numberOfStates: Int,
-    alphabet: IntRange,
+    alphabet: Int,
+    isTerminated: Boolean,
     onTextChanged: (Triple<String, String, String>) -> Unit
 ) {
     Box(
@@ -43,6 +44,6 @@ fun Cell(
             .defaultMinSize(minWidth = 40.dp, minHeight = 40.dp),
         contentAlignment = Alignment.Center
     ) {
-        CustomTextField(numberOfStates, alphabet, onTextChanged)
+        CustomTextField(numberOfStates, alphabet, isTerminated, onTextChanged)
     }
 }

@@ -1,17 +1,23 @@
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 
 @Composable
 fun CustomTextField(
     countOfStates: Int,
-    alphabet: IntRange,
+    alphabet: Int,
+    isTerminated: Boolean,
     onTextChangedCallback: (Triple<String, String, String>) -> Unit,
 ) {
     // Состояние для хранения введенного текста
-    var text by remember { mutableStateOf("") }
+    var text by rememberSaveable { mutableStateOf("") }
 
-    val numbersRegex = "[0-${alphabet.last}]?"
+    val numbersRegex = if (alphabet < 10) {
+        "[0-$alphabet]?"
+    } else {
+        "[0-9]?"
+    }
 
     val statesRegex = if (countOfStates < 10) {
         "[0-$countOfStates]?"
@@ -57,6 +63,7 @@ fun CustomTextField(
     OutlinedTextField(
         value = text,
         onValueChange = { newText -> onTextChanged(newText) },
+        enabled = !isTerminated,
         label = { Text("Input") },
         placeholder = { Text("e.g., 2 L Q3") }
     )

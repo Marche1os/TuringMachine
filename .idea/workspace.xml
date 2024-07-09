@@ -4,14 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3b799919-3d4d-482a-af54-0a4b28de4210" name="Changes" comment="base realization of turing machine">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/EmptyContent.kt" afterDir="false" />
+    <list default="true" id="3b799919-3d4d-482a-af54-0a4b28de4210" name="Changes" comment="TuringMachine implementation">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/CellInput.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/CellInput.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/State.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/State.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/TapeData.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/TapeUI.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/TheHead.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/NewSessionDialog.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/NewSessionDialog.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/TransitionTableUI.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/TransitionTableUI.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,12 +105,21 @@
       <option name="project" value="LOCAL" />
       <updated>1720484644717</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="TuringMachine implementation">
+      <option name="closed" value="true" />
+      <created>1720485902945</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1720485902945</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="init TuringMachine repo" />
     <MESSAGE value="base realization of turing machine" />
-    <option name="LAST_COMMIT_MESSAGE" value="base realization of turing machine" />
+    <MESSAGE value="TuringMachine implementation" />
+    <option name="LAST_COMMIT_MESSAGE" value="TuringMachine implementation" />
   </component>
 </project>

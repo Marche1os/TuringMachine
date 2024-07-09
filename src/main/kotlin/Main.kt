@@ -4,10 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,6 +55,7 @@ fun MainUI() {
     var running by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var showNewSessionDialog by remember { mutableStateOf(false) }
+    var isTerminated by remember { mutableStateOf(false) }
 
     val initMachine: (newN: Int, newM: Int, newTape: List<String>, startHead: Int) -> Unit =
         { newN, newM, newTape, startHead ->
@@ -63,6 +66,7 @@ fun MainUI() {
             transitionTable = Array(countOfNumbers) { Array(countOfStates) { Triple("", "", "") } }
             currentState = 1
             running = false
+            isTerminated = false
         }
 
     if (showNewSessionDialog) {
@@ -98,6 +102,7 @@ fun MainUI() {
         }
 
         if (nextState.removePrefix("Q") == "0") {
+            isTerminated = true
             running = false
             return
         }
@@ -128,6 +133,13 @@ fun MainUI() {
                 modifier = Modifier.fillMaxSize()
                     .padding(16.dp)
             ) {
+                if (isTerminated) {
+                    Text(
+                        text = "Машина перешла в состояние Q0 и завершила выполнение",
+                        color = Color.Red
+                    )
+                }
+
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Button(
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
@@ -139,16 +151,19 @@ fun MainUI() {
                     }
                     Button(
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                        enabled = !isTerminated,
                         onClick = { performStep() }) {
                         Text("Шаг")
                     }
                     Button(
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                        enabled = !isTerminated,
                         onClick = { runMachine(1f) }) {
                         Text("Запуск")
                     }
                     Button(
                         colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                        enabled = !isTerminated && running,
                         onClick = { stopMachine() }) {
                         Text("Остановить")
                     }
@@ -157,7 +172,9 @@ fun MainUI() {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text("Лента", fontSize = 20.sp)
-                LazyRow {
+                LazyRow(
+                    state = rememberLazyListState(),
+                ) {
                     items(tape.size) { index ->
                         Box(
                             modifier = Modifier.padding(8.dp).size(40.dp)
@@ -171,6 +188,20 @@ fun MainUI() {
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                Row {
+                    IconButton(onClick = {
+                        if (headPosition > 0) headPosition--
+                    }) {
+                        Icon(Icons.AutoMirrored.Default.ArrowBack, contentDescription = null)
+                    }
+
+                    IconButton(onClick = { headPosition++ }) {
+                        Icon(Icons.AutoMirrored.Default.ArrowForward, contentDescription = null)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text("Таблица переходов", fontSize = 20.sp)
 
                 val states = remember { List(countOfStates) { index -> "Q${index + 1}" } }
@@ -179,6 +210,7 @@ fun MainUI() {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(countOfStates + 1),
                     modifier = Modifier.padding(16.dp),
+                    state = rememberLazyGridState(),
                 ) {
                     // First row (header of columns)
                     item { /* Empty top-left cell */ }
@@ -196,17 +228,18 @@ fun MainUI() {
 
                         states.forEachIndexed { ind, _ ->
                             item {
-                                Cell(countOfStates,
-                                    (0..<countOfNumbers),
-                                    { (a, b, c) ->
-                                        transitionTable[symbolInd][ind] = Triple(a, b, c)
-                                    })
+                                Cell(
+                                    countOfStates,
+                                    countOfNumbers,
+                                    isTerminated
+                                ) { (a, b, c) ->
+                                    transitionTable[symbolInd][ind] = Triple(a, b, c)
+                                }
                             }
                         }
                     }
                 }
             }
-
         }
     }
 }
