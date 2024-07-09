@@ -5,12 +5,15 @@ import androidx.compose.runtime.*
 @Composable
 fun CustomTextField(
     countOfStates: Int,
-    onTextChangedCallback: (newText: String) -> Unit,
+    alphabet: IntRange,
+    onTextChangedCallback: (Triple<String, String, String>) -> Unit,
 ) {
     // Состояние для хранения введенного текста
     var text by remember { mutableStateOf("") }
 
-    val numberRegex = if (countOfStates < 10) {
+    val numbersRegex = "[0-${alphabet.last}]?"
+
+    val statesRegex = if (countOfStates < 10) {
         "[0-$countOfStates]?"
     } else {
         "(10|[0-$countOfStates])?"
@@ -25,12 +28,14 @@ fun CustomTextField(
 
         // Проверяем каждую часть по мере ввода
         return when (parts.size) {
-            1 -> parts[0].matches("\\d?".toRegex())
-            2 -> parts[0].matches("\\d?".toRegex()) &&
+            1 -> parts[0].matches(numbersRegex.toRegex())
+            2 -> parts[0].matches(numbersRegex.toRegex()) &&
                     parts[1].matches("[LRS]?".toRegex())
-            3 -> parts[0].matches("\\d".toRegex()) &&
+
+            3 -> parts[0].matches(numbersRegex.toRegex()) &&
                     parts[1].matches("[LRS]".toRegex()) &&
-                    parts[2].matches("Q$numberRegex".toRegex())
+                    parts[2].matches("Q$statesRegex".toRegex())
+
             else -> false
         }
 
@@ -40,7 +45,11 @@ fun CustomTextField(
     fun onTextChanged(newText: String) {
         if (newText.isEmpty() || isValidInput(newText)) {
             text = newText
-            onTextChangedCallback(text)
+            val textArray = text.split(" ")
+            if (text.matches("\\d [LRS] Q\\d".toRegex())) {
+                val output = Triple(textArray.first(), textArray[1], textArray.last())
+                onTextChangedCallback(output)
+            }
         }
     }
 

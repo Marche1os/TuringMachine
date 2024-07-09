@@ -4,30 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3b799919-3d4d-482a-af54-0a4b28de4210" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.run/desktop.run.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/CellInput.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/InitParams.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/NewSessionDialog.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/PopupMenu.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/State.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/TapeData.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/TapeUI.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/TheHead.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/TransitionTableUI.kt" afterDir="false" />
+    <list default="true" id="3b799919-3d4d-482a-af54-0a4b28de4210" name="Changes" comment="init TuringMachine repo">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/CellInput.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/CellInput.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/InitParams.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/InitParams.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/NewSessionDialog.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/NewSessionDialog.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/TransitionTableUI.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/TransitionTableUI.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -107,6 +90,19 @@
       <option name="presentableId" value="Default" />
       <updated>1720072261425</updated>
     </task>
+    <task id="LOCAL-00001" summary="init TuringMachine repo">
+      <option name="closed" value="true" />
+      <created>1720475289722</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1720475289722</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="init TuringMachine repo" />
+    <option name="LAST_COMMIT_MESSAGE" value="init TuringMachine repo" />
   </component>
 </project>

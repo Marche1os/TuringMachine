@@ -1,120 +1,211 @@
 import androidx.compose.desktop.ui.tooling.preview.Preview
-import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 @Preview
 fun App() {
 
     MaterialTheme() {
-        TuringMachineUI()
+        MainUI()
+//        TuringMachineUI()
     }
 }
 
 @Composable
-fun TuringMachineUI() {
+fun MainUI() {
+    var countOfNumbers by remember { mutableStateOf(0) }
+    var countOfStates by remember { mutableStateOf(0) }
+    var tape by remember { mutableStateOf(List(10) { " " }) }
+    var headPosition by remember { mutableStateOf(0) }
+    var transitionTable by remember {
+        mutableStateOf(Array(countOfNumbers) {
+            Array(countOfStates) {
+                Triple(
+                    "",
+                    "",
+                    ""
+                )
+            }
+        })
+    }
+    var currentState by remember { mutableStateOf(0) }
+    var running by remember { mutableStateOf(false) }
+    var coroutineScope = rememberCoroutineScope()
     var showNewSessionDialog by remember { mutableStateOf(false) }
-    var initParams by remember { mutableStateOf<InitParams?>(null) }
-    val headPosition = remember { mutableIntStateOf(0) }
+
+    var wasInit by remember { mutableStateOf(false) }
+
+    val initMachine: (newN: Int, newM: Int, newTape: List<String>, startHead: Int) -> Unit =
+        { newN, newM, newTape, startHead ->
+            countOfNumbers = newN
+            countOfStates = newM
+            tape = newTape + List(10_000) { " " }
+            headPosition = startHead
+            transitionTable = Array(countOfNumbers) { Array(countOfStates) { Triple("", "", "") } }
+            currentState = 1
+            running = false
+        }
+
+    if (showNewSessionDialog) {
+        NewSessionDialog(
+            onDismissRequest = { showNewSessionDialog = false },
+            onCreateSession = { params ->
+                initMachine(params.numbersOfAlphabet, params.countOfStates, params.tape, params.headPosition)
+                wasInit = true
+            }
+        )
+    }
+
+    fun performStep() {
+        val currentSymbol = tape[headPosition].toIntOrNull()
+
+        if (currentSymbol == null) {
+            running = false
+            return
+        }
+
+        val (write, move, nextState) = transitionTable[currentSymbol][currentState - 1]
+
+        if (write.isEmpty() || move.isEmpty() || nextState.isEmpty()) {
+            return
+        }
+
+        tape = tape.toMutableList().apply { this[headPosition] = write }
+
+        if (move == "R") {
+            headPosition++
+        } else if (move == "L" && headPosition > 0) {
+            headPosition--
+        }
+
+        if (nextState.removePrefix("Q") == "0") {
+            running = false
+            return
+        }
+
+        currentState = nextState
+            .removePrefix("Q")
+            .toInt()
+    }
+
+    fun runMachine(pauseSeconds: Float) {
+        coroutineScope.launch {
+            running = true
+            while (running) {
+                performStep()
+                delay((pauseSeconds * 1000).toInt().toLong())
+            }
+        }
+    }
+
+    fun stopMachine() {
+        running = false
+    }
+
 
     Column(
-        modifier = Modifier
+        modifier = Modifier.fillMaxSize()
             .padding(16.dp)
-            .fillMaxSize()
     ) {
-        Row(
-            modifier = Modifier.safeContentPadding()
+        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+            Button(
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                onClick = {
+                    showNewSessionDialog = true
+                }) {
+                Text("Начать новый сеанс")
+            }
+            Button(
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                onClick = { performStep() }) {
+                Text("Шаг")
+            }
+            Button(
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                onClick = { runMachine(1f) }) {
+                Text("Запуск")
+            }
+            Button(
+                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                onClick = { stopMachine() }) {
+                Text("Остановить")
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (!wasInit) return
+
+        Text("Лента", fontSize = 20.sp)
+        LazyRow {
+            items(tape.size) { index ->
+                Box(
+                    modifier = Modifier.padding(8.dp).size(40.dp)
+                        .border(1.dp, if (index == headPosition) Color.Green else Color.LightGray),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(tape[index])
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("Таблица переходов", fontSize = 20.sp)
+
+        val states = remember { List(countOfStates) { index -> "Q${index + 1}" } }
+        val symbols = remember { List(countOfNumbers) { index -> index.toString() } }
+
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(countOfStates + 1),
+            modifier = Modifier.padding(16.dp),
         ) {
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                onClick = { showNewSessionDialog = true }) {
-                Text(text = "Новая сессия")
+            // First row (header of columns)
+            item { /* Empty top-left cell */ }
+            states.forEach { state ->
+                item {
+                    HeaderCell(text = state)
+                }
             }
 
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                onClick = {}) {
-                Text(text = "Выполнить шаг")
-            }
-
-            Spacer(modifier = Modifier.width(12.dp))
-
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                onClick = {}) {
-                Text(text = "Запустить выполнение")
-            }
-
-        }
-
-        PopupMenu(
-            onNewSessionClick = { showNewSessionDialog = true },
-            onOneStepRunClick = {},
-            onRunLoopClick = {},
-            onStopClick = {},
-        )
-
-        if (showNewSessionDialog) {
-            NewSessionDialog(
-                onDismissRequest = { showNewSessionDialog = false },
-                onCreateSession = { params -> initParams = params }
-            )
-        }
-
-        initParams?.let { params ->
-            headPosition.value = params.headPosition
-            TapeUI(
-                TapeData(params.tape.toMutableList()),
-                headPosition,
-            )
-
-            Row {
-                IconButton(
-                    onClick = {
-                        if (headPosition.value > 0) headPosition.value--
-                    },
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                        contentDescription = null,
-                    )
+            // Remaining rows (each symbol row)
+            symbols.forEachIndexed { symbolInd, symbol ->
+                item {
+                    HeaderCell(text = symbol)
                 }
 
-                Spacer(Modifier.width(12.dp))
-
-                IconButton(
-                    onClick = { headPosition.value++ },
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                        contentDescription = null,
-                    )
+                states.forEachIndexed { ind, _ ->
+                    item {
+                        Cell(countOfStates,
+                            (0..<countOfNumbers),
+                            { (a, b, c) ->
+                                transitionTable[symbolInd][ind] = Triple(a, b, c)
+                                println("table: $a, $b, $c")
+                            })
+                    }
                 }
-
             }
-
-            TransitionTable(
-                stateCount = params.countOfStates,
-                symbolCount = params.numbersOfAlphabet,
-            )
-
         }
-
     }
 }
-
 
 fun main() = application {
     Window(

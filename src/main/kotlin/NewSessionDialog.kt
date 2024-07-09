@@ -85,7 +85,15 @@ fun NewSessionDialog(
                             return@Button
                         }
 
-                        val tape = initialTape.chunked(1).map { it.toCharArray().first() }
+                        val tape = initialTape.chunked(1)
+
+                        val maxTapeValue = tape.maxOf { it.toInt() }
+
+                        if (maxTapeValue > alphabet) {
+                            errorMessage = "В ленте содержатся значения, превышающие размер алфавита"
+                            return@Button
+                        }
+
                         val head = headPosition.toIntOrNull()
 
                         if (head == null || head < 0) {
