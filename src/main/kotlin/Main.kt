@@ -17,7 +17,9 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+
 
 @Composable
 @Preview
@@ -25,12 +27,13 @@ fun App() {
 
     MaterialTheme() {
         MainUI()
-//        TuringMachineUI()
     }
 }
 
 @Composable
 fun MainUI() {
+    val stateFlow = remember { MutableStateFlow<State>(State.NotInit) }
+
     var countOfNumbers by remember { mutableStateOf(0) }
     var countOfStates by remember { mutableStateOf(0) }
     var tape by remember { mutableStateOf(List(10) { " " }) }
@@ -48,10 +51,8 @@ fun MainUI() {
     }
     var currentState by remember { mutableStateOf(0) }
     var running by remember { mutableStateOf(false) }
-    var coroutineScope = rememberCoroutineScope()
+    val coroutineScope = rememberCoroutineScope()
     var showNewSessionDialog by remember { mutableStateOf(false) }
-
-    var wasInit by remember { mutableStateOf(false) }
 
     val initMachine: (newN: Int, newM: Int, newTape: List<String>, startHead: Int) -> Unit =
         { newN, newM, newTape, startHead ->
@@ -69,7 +70,7 @@ fun MainUI() {
             onDismissRequest = { showNewSessionDialog = false },
             onCreateSession = { params ->
                 initMachine(params.numbersOfAlphabet, params.countOfStates, params.tape, params.headPosition)
-                wasInit = true
+                stateFlow.tryEmit(State.NewSession)
             }
         )
     }
@@ -120,89 +121,92 @@ fun MainUI() {
         running = false
     }
 
+    when (stateFlow.collectAsState().value) {
+        State.NotInit -> EmptyContentUI { showNewSessionDialog = true }
+        State.NewSession -> {
+            Column(
+                modifier = Modifier.fillMaxSize()
+                    .padding(16.dp)
+            ) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Button(
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                        onClick = {
+                            showNewSessionDialog = true
+                            stateFlow.tryEmit(State.NotInit)
+                        }) {
+                        Text("Начать новый сеанс")
+                    }
+                    Button(
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                        onClick = { performStep() }) {
+                        Text("Шаг")
+                    }
+                    Button(
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                        onClick = { runMachine(1f) }) {
+                        Text("Запуск")
+                    }
+                    Button(
+                        colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
+                        onClick = { stopMachine() }) {
+                        Text("Остановить")
+                    }
+                }
 
-    Column(
-        modifier = Modifier.fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                onClick = {
-                    showNewSessionDialog = true
-                }) {
-                Text("Начать новый сеанс")
-            }
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                onClick = { performStep() }) {
-                Text("Шаг")
-            }
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                onClick = { runMachine(1f) }) {
-                Text("Запуск")
-            }
-            Button(
-                colors = ButtonDefaults.buttonColors(backgroundColor = Color.LightGray),
-                onClick = { stopMachine() }) {
-                Text("Остановить")
-            }
-        }
+                Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+                Text("Лента", fontSize = 20.sp)
+                LazyRow {
+                    items(tape.size) { index ->
+                        Box(
+                            modifier = Modifier.padding(8.dp).size(40.dp)
+                                .border(1.dp, if (index == headPosition) Color.Green else Color.LightGray),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(tape[index])
+                        }
+                    }
+                }
 
-        if (!wasInit) return
+                Spacer(modifier = Modifier.height(16.dp))
 
-        Text("Лента", fontSize = 20.sp)
-        LazyRow {
-            items(tape.size) { index ->
-                Box(
-                    modifier = Modifier.padding(8.dp).size(40.dp)
-                        .border(1.dp, if (index == headPosition) Color.Green else Color.LightGray),
-                    contentAlignment = Alignment.Center
+                Text("Таблица переходов", fontSize = 20.sp)
+
+                val states = remember { List(countOfStates) { index -> "Q${index + 1}" } }
+                val symbols = remember { List(countOfNumbers) { index -> index.toString() } }
+
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(countOfStates + 1),
+                    modifier = Modifier.padding(16.dp),
                 ) {
-                    Text(tape[index])
-                }
-            }
-        }
+                    // First row (header of columns)
+                    item { /* Empty top-left cell */ }
+                    states.forEach { state ->
+                        item {
+                            HeaderCell(text = state)
+                        }
+                    }
 
-        Spacer(modifier = Modifier.height(16.dp))
+                    // Remaining rows (each symbol row)
+                    symbols.forEachIndexed { symbolInd, symbol ->
+                        item {
+                            HeaderCell(text = symbol)
+                        }
 
-        Text("Таблица переходов", fontSize = 20.sp)
-
-        val states = remember { List(countOfStates) { index -> "Q${index + 1}" } }
-        val symbols = remember { List(countOfNumbers) { index -> index.toString() } }
-
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(countOfStates + 1),
-            modifier = Modifier.padding(16.dp),
-        ) {
-            // First row (header of columns)
-            item { /* Empty top-left cell */ }
-            states.forEach { state ->
-                item {
-                    HeaderCell(text = state)
-                }
-            }
-
-            // Remaining rows (each symbol row)
-            symbols.forEachIndexed { symbolInd, symbol ->
-                item {
-                    HeaderCell(text = symbol)
-                }
-
-                states.forEachIndexed { ind, _ ->
-                    item {
-                        Cell(countOfStates,
-                            (0..<countOfNumbers),
-                            { (a, b, c) ->
-                                transitionTable[symbolInd][ind] = Triple(a, b, c)
-                                println("table: $a, $b, $c")
-                            })
+                        states.forEachIndexed { ind, _ ->
+                            item {
+                                Cell(countOfStates,
+                                    (0..<countOfNumbers),
+                                    { (a, b, c) ->
+                                        transitionTable[symbolInd][ind] = Triple(a, b, c)
+                                    })
+                            }
+                        }
                     }
                 }
             }
+
         }
     }
 }
